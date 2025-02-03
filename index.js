@@ -10,7 +10,7 @@ const specs = require("./configuration/swaggerConfig");
 
 app.use(express.json());
 
-// const userRoutes = require("./routes/userRoutes");
+const userRoutes = require("./routes/userRoutes");
 // const quoteRoutes = require("./routes/quoteRoutes");
 
 app.use(function (req, res, next) {
@@ -26,7 +26,7 @@ const authenticateUser = (req, res, next) => {
 };
 app.use("/mobikul/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
-// app.use("/quotely-service/users", userRoutes);
+app.use("/mobikul/users", userRoutes);
 // app.use("/quotely-service/quotes", authenticateUser, quoteRoutes);
 
 server.listen(port, () => {
