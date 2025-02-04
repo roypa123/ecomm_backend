@@ -4,7 +4,7 @@ module.exports = {
     connection: {
       //host: '164.52.200.24',
       user: 'postgres',
-      password: 'postgres',
+      password: 'password',
       database: 'mobikul',
     },
     migrations: {

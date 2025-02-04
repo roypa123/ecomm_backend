@@ -1,18 +1,28 @@
 const { v4: uuidv4 } = require("uuid");
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
+const constants = require('../constants')
 
 class HelperFunction {
   static async generateApiKey() {
     const uuid = uuidv4();
     const apiKey = uuid.replace(/-/g, "").substring(0, 32);
-    return apiKey.toString(); 
+    return apiKey.toString();
   }
+
+  static async generateAccessToken() {
+    return jwt.sign({ username: "manu" }, constants.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+  };
+
+  static async generateRefreshToken() {
+    return jwt.sign({ username: user.username }, constants.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+  };
 
   static async generateImagesNames() {
     const uuid = uuidv4();
     const apiKey = uuid.replace(/-/g, "").substring(0, 10);
-    return apiKey.toString(); 
+    return apiKey.toString();
   }
 
   static async encrypt(input, encodedkey) {
