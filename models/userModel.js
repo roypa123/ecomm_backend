@@ -1,6 +1,6 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
-const HelperFunction = require("../utils/helper_functions/helperfuctions");
+const HelperFunction = require("../utils/helper_functions/helperfunctions");
 const Constants = require("../utils/constants");
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 

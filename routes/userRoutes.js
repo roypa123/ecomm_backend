@@ -5,12 +5,12 @@ const router = express.Router();
 
 router.post("/create", UserController.createUser);
 
-router.post("/login", UserController.login);
+// router.post("/login", UserController.login);
 
-router.post("/forgotpassword", UserController.forgotPassword);
+// router.post("/forgotpassword", UserController.forgotPassword);
 
-router.post("/sendresettoken", UserController.sendResetToken);
+// router.post("/sendresettoken", UserController.sendResetToken);
 
-router.post("/tokenchangepassword", UserController.tokenChangePassword);
+// router.post("/tokenchangepassword", UserController.tokenChangePassword);
 
 module.exports = router;

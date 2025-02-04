@@ -6,13 +6,13 @@ class HelperFunction {
   static async generateApiKey() {
     const uuid = uuidv4();
     const apiKey = uuid.replace(/-/g, "").substring(0, 32);
-    return apiKey.toString(); // Convert to string explicitly
+    return apiKey.toString(); 
   }
 
   static async generateImagesNames() {
     const uuid = uuidv4();
     const apiKey = uuid.replace(/-/g, "").substring(0, 10);
-    return apiKey.toString(); // Convert to string explicitly
+    return apiKey.toString(); 
   }
 
   static async encrypt(input, encodedkey) {
@@ -26,8 +26,6 @@ class HelperFunction {
       let encryptedData = cipher.update(input, "utf8", "hex");
       encryptedData += cipher.final("hex");
 
-      // Store the IV along with the encrypted data for decryption
-      //return { ciphertext: encryptedData, iv: iv.toString("hex") };
       return encryptedData;
     } catch (error) {
       console.error("Encryption error:", error);
@@ -85,7 +83,6 @@ class HelperFunction {
     );
   }
 
-  //////-----------------/////
 }
 
 module.exports = HelperFunction;

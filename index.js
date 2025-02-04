@@ -11,7 +11,6 @@ const specs = require("./configuration/swaggerConfig");
 app.use(express.json());
 
 const userRoutes = require("./routes/userRoutes");
-// const quoteRoutes = require("./routes/quoteRoutes");
 
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -27,7 +26,6 @@ const authenticateUser = (req, res, next) => {
 app.use("/mobikul/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/mobikul/users", userRoutes);
-// app.use("/quotely-service/quotes", authenticateUser, quoteRoutes);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
