@@ -2,7 +2,7 @@ const UserModel = require("../models/userModel");
 
 const { RequestVO } = require("../vo/requestVo");
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
-const HelperFunction = require("../utils/helper_functions/helperfunctions");
+const helperFunction = require("../utils/helper_functions/helperfunctions");
 const transporter = require("../configuration/mailerconfig");
 
 class UserController {
@@ -25,7 +25,7 @@ class UserController {
         return res.status(400).json(validationError);
       }
 
-      const isValidEmail = await HelperFunction.isValidEmail(userData.email);
+      const isValidEmail = await helperFunction.isValidEmail(userData.email);
 
       if (!isValidEmail) {
         const validationError = new ErrorVO(
@@ -36,7 +36,7 @@ class UserController {
         return res.status(400).json(validationError);
       }
 
-      const isValidPassword = await HelperFunction.isValidPassword(
+      const isValidPassword = await helperFunction.isValidPassword(
         userData.password
       );
 
@@ -48,8 +48,6 @@ class UserController {
         );
         return res.status(400).json(validationError);
       }
-
-
 
       const userExists = await UserModel.userExists(userData.email);
       if (userExists) {
@@ -67,16 +65,15 @@ class UserController {
         filter: null,
         sortBy: null,
       });
-
-
-
+      console.log("tinu")
       const result = await UserModel.createUser(requestVO.data);
+      console.log("tinu1")
+      console.log(result.user_id2.toString())
 
-      console.log(`sdss ${result.Date.email}`)
 
       const mailOptions = {
         from: "roypa81130@gmail.com",
-        to: result.Date.email,
+        to: result.email,
         subject: "Password Reset",
         html: `
         <!DOCTYPE html>

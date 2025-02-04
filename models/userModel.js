@@ -1,12 +1,10 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
 const helperFunction = require("../utils/helper_functions/helperfunctions");
-const Constants = require("../utils/constants");
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
 class UserModel {
   static async userExists(email) {
-    console.log(email);
     const existingUser = knex("user").where({ email }).first();
     return existingUser;
   }
@@ -18,55 +16,41 @@ class UserModel {
     const password = await helperFunction.hashPassword(userData.password);
 
     const currentTime = Date.now();
-    const futureTime = currentTime + 5 * 60 * 1000;
-    const otp = helperFunction.generateOTP();
-
+    const expiry = currentTime + 5 * 60 * 1000;
+    const otp = await helperFunction.generateOTP();
     try {
-
-      knex.transaction(async function (trx) {
+      return await knex.transaction(async (trx) => {
         try {
+          const [{ user_id: user_id1, name: name1, email: email1 }] = await trx("user")
+            .insert({ name, email, password })
+            .returning([
+              "user_id",
+              "name",
+              "email",
+              "role",
+            ]);
 
+          const [{ user_id: user_id2, otp_for_create_acount: otp2 }] = await trx("otp_for_createaccount")
+            .insert({ user_id: user_id1, otp_for_create_acount: otp, expiry_at: expiry })
+            .returning([
+              "user_id",
+              "otp_for_create_acount",
+              "expiry_at",
+            ]);
+          await trx.commit();
+          console.log("Data inserted successfully.");
+          return { user_id2: user_id2, otp2: otp2, email1: email1 }
         } catch (error) {
           await trx.rollback();
           console.error("Error inserting data:", error);
-
+          throw new Error("Failed to create user.");
         } finally {
-          // Close the database connection
           knex.destroy();
-
         }
-
-
-
-
-
-      })
-
-
-
-
-
-
-
+      });
     } catch (error) {
       throw error
     }
-
-
-
-
-    // const createdUser = await knex("user")
-    //   .insert({ name, email, password })
-    //   .returning([
-    //     "user_id",
-    //     "name",
-    //     "email",
-    //     "role",
-    //   ]);
-
-    // const createdUser1 = createdUser[0];
-    // return createdUser1;
-
   }
 
 
@@ -79,7 +63,7 @@ class UserModel {
     const plainPassword = userData.password;
     const role = userData.role;
 
-    console.log("sss");
+
 
     const userData1 = await knex("user")
       .select(
