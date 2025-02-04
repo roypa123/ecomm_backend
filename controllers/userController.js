@@ -70,6 +70,8 @@ class UserController {
 
       const result = await UserModel.createUser(requestVO.data);
 
+      console.log(result.email1);
+
       const mailOptions = {
         from: "roypa81130@gmail.com",
         to: result.email1,
@@ -126,8 +128,9 @@ class UserController {
 
 
 
-      transporter.sendMail(mailOptions, (error, info) => {
+      await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
+          console.log(error);
           const errorResponse = new ErrorVO(
             500,
             "BAD REQUEST",

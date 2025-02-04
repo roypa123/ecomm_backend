@@ -5,7 +5,7 @@ const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
 class UserModel {
   static async userExists(email) {
-    const existingUser = knex("user").where({ email }).first();
+    const existingUser = await knex("user").where({ email }).first();
     return existingUser;
   }
 
