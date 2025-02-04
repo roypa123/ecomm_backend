@@ -5,11 +5,11 @@ const jwt = require('jsonwebtoken');
 const constants = require('../constants')
 
 class HelperFunction {
-  static async generateApiKey() {
-    const uuid = uuidv4();
-    const apiKey = uuid.replace(/-/g, "").substring(0, 32);
-    return apiKey.toString();
-  }
+
+  static async generateOTP() {
+    return Math.floor(1000 + Math.random() * 9000).toString();
+  };
+
 
   static async generateAccessToken() {
     return jwt.sign({ username: "manu" }, constants.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });

@@ -10,8 +10,10 @@ exports.up = function(knex) {
         table.string("password").notNullable();
         table.string("profile_image");
         table.string("role").defaultTo("USER");
-        table.string("apikey").notNullable();
-        table.integer("status");
+        table.string("access_token");
+        table.string("refresh_token");
+        table.string("otp_create_account");
+        table.integer("status").defaultTo(0);
         table.bigInteger('created_at').defaultTo(knex.raw('extract(epoch from now()) * 1000'));
         table.bigInteger('updated_at').defaultTo(knex.raw('extract(epoch from now()) * 1000'));
       });

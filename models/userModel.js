@@ -1,6 +1,6 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
-const HelperFunction = require("../utils/helper_functions/helperfunctions");
+const helperFunction = require("../utils/helper_functions/helperfunctions");
 const Constants = require("../utils/constants");
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
@@ -12,29 +12,67 @@ class UserModel {
   }
 
   static async createUser(userData) {
-    const first_name = userData.first_name;
-    const last_name = userData.last_name;
+    const name = userData.name;
     const email = userData.email;
     const role = userData.role;
-    const password = await HelperFunction.hashPassword(userData.password);
-    const apikey = await HelperFunction.generateApiKey();
+    const password = await helperFunction.hashPassword(userData.password);
 
-    const createdUser = await knex("user")
-      .insert({ first_name, last_name, email, password, apikey, role })
-      .returning([
-        "user_id",
-        "first_name",
-        "last_name",
-        "email",
-        "role",
-        "apikey",
-        "payment_end_date",
-      ]);
+    const currentTime = Date.now();
+    const futureTime = currentTime + 5 * 60 * 1000;
+    const otp = helperFunction.generateOTP();
 
-    const createdUser1 = createdUser[0];
+    try {
 
-    return createdUser1;
+      knex.transaction(async function (trx) {
+        try {
+
+        } catch (error) {
+          await trx.rollback();
+          console.error("Error inserting data:", error);
+
+        } finally {
+          // Close the database connection
+          knex.destroy();
+
+        }
+
+
+
+
+
+      })
+
+
+
+
+
+
+
+    } catch (error) {
+      throw error
+    }
+
+
+
+
+    // const createdUser = await knex("user")
+    //   .insert({ name, email, password })
+    //   .returning([
+    //     "user_id",
+    //     "name",
+    //     "email",
+    //     "role",
+    //   ]);
+
+    // const createdUser1 = createdUser[0];
+    // return createdUser1;
+
   }
+
+
+
+
+
 
   static async loginUser(userData) {
     const email = userData.email;
@@ -78,102 +116,7 @@ class UserModel {
     }
   }
 
-  static async fetchingUserDataForPasswordRequest(email) {
-    console.log(email);
 
-    const userData1 = await knex("user")
-      .select("user_id")
-      .where({ email: email })
-      .first();
-
-    return userData1;
-  }
-
-  static async sendingDataToRequestTokenTable(
-    userId,
-    requesttoken,
-    futureTime
-  ) {
-    const user_id = userId;
-    const token = requesttoken;
-    const expiry_at = futureTime;
-
-    const existingMedia = await knex("resettoken")
-      .select("id")
-      .where({ user_id });
-
-    console.log("manu");
-
-    if (existingMedia.length > 0) {
-      // Update the existing record
-      const updatedMedia = await knex("resettoken")
-        .where({ user_id })
-        .update({ token, expiry_at })
-        .returning(["id", "user_id", "token", "expiry_at"]);
-      console.log(updatedMedia);
-      return updatedMedia;
-    } else {
-      // Insert a new record
-
-      const createdMedia = await knex("resettoken")
-        .insert({ user_id, token, expiry_at })
-        .returning(["id", "user_id", "token", "expiry_at"]);
-      console.log(createdMedia);
-      return createdMedia;
-    }
-  }
-
-  static async tokenExists(userData) {
-    const token = userData.token;
-
-    try {
-      // const tokenData = await knex("resettoken")
-      //   .select("id", "user_id", "token", "expiry_at")
-      //   .where({ token })
-      //   .first();
-
-      const tokenData = await knex("resettoken")
-        .select(
-          "resettoken.id",
-          "resettoken.user_id",
-          "resettoken.token",
-          "resettoken.expiry_at",
-          "user.apikey"
-        )
-        .join("user", "resettoken.user_id", "user.user_id")
-        .where({ "resettoken.token": token })
-        .first();
-
-      return tokenData;
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  static async tokenChangePassword(userData) {
-    const id = userData.id;
-    const user_id = userData.user_id;
-    const token = userData.token;
-    const apikey = userData.apikey;
-    const password = await HelperFunction.hashPassword(userData.password);
-
-    try {
-      const passwordupdated = await knex("user")
-        .where({ user_id, apikey })
-        .update({
-          password: password,
-        });
-
-      if (passwordupdated === 1) {
-        const tabledeleted = await knex("resettoken").where({ id }).del();
-        return tabledeleted;
-      } else {
-        throw new Error("Failed to update password.");
-      }
-    } catch (e) {
-      throw e;
-    }
-  }
 }
 
 module.exports = UserModel;
