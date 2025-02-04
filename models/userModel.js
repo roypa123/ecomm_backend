@@ -1,7 +1,7 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
 const helperFunction = require("../utils/helper_functions/helperfunctions");
-const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
+// const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
 class UserModel {
   static async userExists(email) {
@@ -54,50 +54,69 @@ class UserModel {
   }
 
 
-
-
-
-
   static async loginUser(userData) {
     const email = userData.email;
     const plainPassword = userData.password;
-    const role = userData.role;
 
+    try {
+      const userData1 = await knex("user")
+        .select(
+          "user_id",
+          "name",
+          "email",
+          "role",
+          "password",
+        )
+        .where({ email: email })
+        .first();
 
+      const comparePassword = await helperFunction.comparePasswords(
+        plainPassword,
+        userData1.password
+      );
 
-    const userData1 = await knex("user")
-      .select(
-        "password",
-        "apikey",
-        "user_id",
-        "first_name",
-        "last_name",
-        "role",
-        "email",
-        "payment_end_date"
-      )
-      .where({ email: email, role: role })
-      .first();
-
-    const comparePassword = await HelperFunction.comparePasswords(
-      plainPassword,
-      userData1.password
-    );
-    console.log(comparePassword);
-
-    if (comparePassword) {
-      return {
+      const user = {
         user_id: userData1.user_id,
-        first_name: userData1.first_name,
-        last_name: userData1.last_name,
+        name: userData1.name,
         email: userData1.email,
         role: userData1.role,
-        apikey: userData1.apikey,
-        payment_end_date: userData1.payment_end_date,
-      };
-    } else {
-      return null;
+      }
+
+
+
+      if (comparePassword) {
+        const access_token = await helperFunction.generateRefreshToken(user);
+        const refresh_token = await helperFunction.generateAccessToken(user);
+        console.log(userData1.user_id)
+
+
+        const userData2 = await knex("user")
+          .where({ user_id: userData1.user_id })
+          .update({
+            access_token: access_token,
+            refresh_token: refresh_token
+          })
+          .returning([
+            "user_id",
+            "name",
+            "email",
+            "role",
+            "access_token",
+            "refresh_token"]
+          )
+        return userData2;
+      } else {
+        throw ("Incorrect Password");
+      }
+
+
+
+
+    } catch (error) {
+      throw error;
     }
+
+
   }
 
 

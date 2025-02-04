@@ -160,7 +160,7 @@ class UserController {
     const userData = req.body;
 
     try {
-      if (!userData.email || !userData.password || !userData.role) {
+      if (!userData.email || !userData.password) {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
@@ -169,7 +169,7 @@ class UserController {
         return res.status(400).json(validationError);
       }
 
-      const isValidEmail = await HelperFunction.isValidEmail(userData.email);
+      const isValidEmail = await helperFunction.isValidEmail(userData.email);
 
       if (!isValidEmail) {
         const validationError = new ErrorVO(
@@ -180,7 +180,7 @@ class UserController {
         return res.status(400).json(validationError);
       }
 
-      const isValidPassword = await HelperFunction.isValidPassword(
+      const isValidPassword = await helperFunction.isValidPassword(
         userData.password
       );
 
@@ -212,17 +212,9 @@ class UserController {
       });
 
       const result = await UserModel.loginUser(requestVO.data);
-      if (result == null) {
-        const errorResponse = new ErrorVO(
-          500,
-          "Invalid email and password",
-          "Invalid email and password"
-        );
-        res.status(500).json(errorResponse);
-      } else {
-        const successResponse = new ResponseVO("Success", 200, result);
-        res.status(200).json(successResponse);
-      }
+      const successResponse = new ResponseVO("Success", 200, result);
+      res.status(200).json(successResponse);
+
     } catch (error) {
       const errorResponse = new ResponseVO("Internal Server Error", 500, error);
       res.status(500).json(errorResponse);

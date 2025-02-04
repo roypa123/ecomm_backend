@@ -11,12 +11,25 @@ class HelperFunction {
   };
 
 
-  static async generateAccessToken() {
-    return jwt.sign({ username: "manu" }, constants.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+  static async generateAccessToken(user) {
+    try {
+      const token = jwt.sign(user, constants.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+      return token;  
+    } catch (error) {
+      console.error("Error generating access token:", error);
+      throw new Error("Failed to generate access token.");
+    }
   };
 
-  static async generateRefreshToken() {
-    return jwt.sign({ username: user.username }, constants.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+  static async generateRefreshToken(user) {
+    try {
+      const token = jwt.sign(user, constants.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+      //console.log(token);
+      return token;  
+    } catch (error) {
+      console.error("Error generating access token:", error);
+      throw new Error("Failed to generate access token.");
+    }
   };
 
   static async generateImagesNames() {
