@@ -1,7 +1,7 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
 const helperFunction = require("../utils/helper_functions/helperfunctions");
-// const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
+const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
 class UserModel {
   static async userExists(email) {
@@ -19,10 +19,10 @@ class UserModel {
     const expiry = currentTime + 5 * 60 * 1000;
     const otp = await helperFunction.generateOTP();
     try {
-      return await knex.transaction(async (trx) => {
+      const result = await knex.transaction(async (trx) => {
         try {
           const [{ user_id: user_id1, name: name1, email: email1 }] = await trx("user")
-            .insert({ name, email, password })
+            .insert({ name, email, password, role })
             .returning([
               "user_id",
               "name",
@@ -35,19 +35,24 @@ class UserModel {
             .returning([
               "user_id",
               "otp_for_create_acount",
-              "expiry_at",
             ]);
-          await trx.commit();
+
           console.log("Data inserted successfully.");
-          return { user_id2: user_id2, otp2: otp2, email1: email1 }
+
+          const data = { user_id2, otp2, email1, name1 };
+
+          return data;
         } catch (error) {
           await trx.rollback();
           console.error("Error inserting data:", error);
           throw new Error("Failed to create user.");
-        } finally {
+        }
+
+        finally {
           knex.destroy();
         }
       });
+      return result;
     } catch (error) {
       throw error
     }
@@ -109,17 +114,11 @@ class UserModel {
         throw ("Incorrect Password");
       }
 
-
-
-
     } catch (error) {
       throw error;
     }
 
-
   }
-
-
 }
 
 module.exports = UserModel;

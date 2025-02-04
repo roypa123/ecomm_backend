@@ -8,8 +8,6 @@ const transporter = require("../configuration/mailerconfig");
 class UserController {
   static async createUser(req, res) {
     const userData = req.body;
-
-
     try {
       if (
         !userData.email ||
@@ -20,6 +18,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Missing required fields",
           "Missing required fields"
         );
         return res.status(400).json(validationError);
@@ -31,6 +30,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Invalid email",
           "Invalid email"
         );
         return res.status(400).json(validationError);
@@ -44,6 +44,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Invalid password",
           "Invalid password"
         );
         return res.status(400).json(validationError);
@@ -54,6 +55,7 @@ class UserController {
         const conflictError = new ErrorVO(
           409,
           "BAD REQUEST",
+          "User already exists",
           "User already exists"
         );
         return res.status(409).json(conflictError);
@@ -65,23 +67,20 @@ class UserController {
         filter: null,
         sortBy: null,
       });
-      console.log("tinu")
-      const result = await UserModel.createUser(requestVO.data);
-      console.log("tinu1")
-      console.log(result.user_id2.toString())
 
+      const result = await UserModel.createUser(requestVO.data);
 
       const mailOptions = {
         from: "roypa81130@gmail.com",
-        to: result.email,
-        subject: "Password Reset",
+        to: result.email1,
+        subject: "OTP for create account",
         html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Password Reset</title>
+            <title>OTP for create account</title>
             <style>
                 body {
                     font-family: Arial, sans-serif;
@@ -116,7 +115,7 @@ class UserController {
                 <h1>Create account for Mobikul App</h1>
                 <p>Hello,</p>
                 <p>We have received a request for OTP for creating account in Mobikul App. To proceed with the creating account, please use the following code:</p>
-               
+                <p class="token">${result.otp2}</p>
                 <p>If you didn't request a OTP for creating account, you can safely ignore this email.</p>
                 <p>Thank you!</p>
             </div>
@@ -125,31 +124,30 @@ class UserController {
     `,
       };
 
-      // <p class="token">${requesttoken}</p>
+
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           const errorResponse = new ErrorVO(
             500,
+            "BAD REQUEST",
             "Invalid email and password",
             "Invalid email and password"
           );
           res.status(500).json(errorResponse);
         } else {
           const successResponse = new ResponseVO(
-            "Success",
             200,
+            "Success",
+            "Otp sent successfully",
             "Otp sent successfully"
           );
           res.status(200).json(successResponse);
         }
       });
 
-
-      // const successResponse = new ResponseVO("Success", 201, result);
-      // res.status(201).json(successResponse);
     } catch (error) {
-      const errorResponse = new ResponseVO("Internal Server Error", 500, error);
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
       res.status(500).json(errorResponse);
     }
   }
@@ -164,6 +162,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Missing required fields",
           "Missing required fields"
         );
         return res.status(400).json(validationError);
@@ -175,6 +174,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Invalid email",
           "Invalid email"
         );
         return res.status(400).json(validationError);
@@ -188,6 +188,7 @@ class UserController {
         const validationError = new ErrorVO(
           400,
           "BAD REQUEST",
+          "Invalid password",
           "Invalid password"
         );
         return res.status(400).json(validationError);
@@ -198,6 +199,7 @@ class UserController {
       if (!userExists) {
         const conflictError = new ErrorVO(
           409,
+          "Invalid email and password",
           "Invalid email and password",
           "Invalid email and password"
         );
@@ -212,11 +214,11 @@ class UserController {
       });
 
       const result = await UserModel.loginUser(requestVO.data);
-      const successResponse = new ResponseVO("Success", 200, result);
+      const successResponse = new ResponseVO(200, "Success", "Success", result);
       res.status(200).json(successResponse);
 
     } catch (error) {
-      const errorResponse = new ResponseVO("Internal Server Error", 500, error);
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
       res.status(500).json(errorResponse);
     }
   }
