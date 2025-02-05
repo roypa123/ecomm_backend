@@ -11,6 +11,14 @@ class HelperFunction {
   };
 
 
+  static async isValidOTP(otp) {
+    // Regular expression for exactly 4 digits (0-9)
+    const otpRegex = /^\d{4}$/;
+
+    return otpRegex.test(otp);
+}
+
+
   static async generateAccessToken(user) {
     try {
       const token = jwt.sign(user, constants.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });

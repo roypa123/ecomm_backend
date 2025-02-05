@@ -155,7 +155,7 @@ class UserController {
     }
   }
 
-  ///-----------------
+
 
   static async login(req, res) {
     const userData = req.body;
@@ -225,6 +225,86 @@ class UserController {
       res.status(500).json(errorResponse);
     }
   }
+
+
+
+  static async createAccountOtp(req, res) {
+    const userData = req.body;
+
+    try {
+      if (!userData.email || !userData.otp) {
+        const validationError = new ErrorVO(
+          400,
+          "BAD REQUEST",
+          "Missing required fields",
+          "Missing required fields"
+        );
+        return res.status(400).json(validationError);
+      }
+
+      const isValidEmail = await helperFunction.isValidEmail(userData.email);
+
+      if (!isValidEmail) {
+        const validationError = new ErrorVO(
+          400,
+          "BAD REQUEST",
+          "Invalid email",
+          "Invalid email"
+        );
+        return res.status(400).json(validationError);
+      }
+
+      const isValidOtp = await helperFunction.isValidOTP(
+        userData.otp
+      );
+
+      if (!isValidOtp) {
+        const validationError = new ErrorVO(
+          400,
+          "BAD REQUEST",
+          "Invalid OTP",
+          "Invalid OTP"
+        );
+        return res.status(400).json(validationError);
+      }
+
+      
+
+      const userExists = await UserModel.userExists(userData.email);
+
+      if (!userExists) {
+        const conflictError = new ErrorVO(
+          409,
+          "Invalid email and password",
+          "Invalid email and password",
+          "Invalid email and password"
+        );
+        return res.status(409).json(conflictError);
+      }
+
+      const requestVO = new RequestVO({
+        data: userData,
+        pagination: null,
+        filter: null,
+        sortBy: null,
+      });
+
+      const result = await UserModel.createAccountOtp(requestVO.data);
+      const successResponse = new ResponseVO(200, "Success", "Success", result);
+      res.status(200).json(successResponse);
+
+    } catch (error) {
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
+      res.status(500).json(errorResponse);
+    }
+  }
+
+
+
+
+
+
+
 
 
 
