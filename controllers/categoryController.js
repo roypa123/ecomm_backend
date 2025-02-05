@@ -93,6 +93,78 @@ class CategoryController {
         }
     }
 
+    static async getCategories(req, res) {
+
+        try {
+            const result = await knex("categories")
+                .select('id','name','category_image')
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+
+    static async getSubcategories(req, res) {
+        const { categoryId } = req.query;
+
+        try {
+            if (!categoryId) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const result = await knex('subcategories')
+                                .select('id','name','category_id')                    
+                                .where({ category_id: categoryId });
+
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+
+    static async getTypes(req, res) {
+        const { subcategoryId } = req.query;
+      
+        console.log(subcategoryId)
+        try {
+            if (!subcategoryId) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const result = await knex("types")
+                .select(['id', 'name', 'subcategory_id'])
+                .where({subcategory_id: subcategoryId });
+              
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
 
 
 
