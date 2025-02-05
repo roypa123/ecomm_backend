@@ -48,9 +48,7 @@ class UserModel {
           throw new Error("Failed to create user.");
         }
 
-        finally {
-          knex.destroy();
-        }
+
       });
       return result;
     } catch (error) {
@@ -71,6 +69,7 @@ class UserModel {
           "email",
           "role",
           "password",
+          "status"
         )
         .where({ email: email })
         .first();
@@ -85,6 +84,7 @@ class UserModel {
         name: userData1.name,
         email: userData1.email,
         role: userData1.role,
+        status: userData1.status
       }
 
 
@@ -124,58 +124,68 @@ class UserModel {
     const email = userData.email;
     const otp = userData.otp;
 
-    console.log(email);
 
     try {
-      const userData1 = await knex("user")
-        .select(
-          "user_id",
-          "name",
-          "email",
-          "role",
-          "password",
-        )
-        .where({ email: email })
-        .first();
+      const result = await knex.transaction(async (trx) => {
 
-     
+        try {
 
-      const user = {
-        user_id: userData1.user_id,
-        name: userData1.name,
-        email: userData1.email,
-        role: userData1.role,
-      }
+          const { user_id: user_id4, name: name1, email: email1, role: role1, status: status1 } = await trx("user")
+            .select("user_id", "name", "email", "role", "status")
+            .where({ email }).first();
+
+          const { otp_for_create_acount: otp1, expiry_at: expiryAt1 } = await trx("otp_for_createaccount")
+            .select("otp_for_create_acount", "expiry_at")
+            .where({ user_id: user_id4 }).first();
 
 
+          const dateNow = Date.now();
 
-      if (comparePassword) {
-        const access_token = await helperFunction.generateRefreshToken(user);
-        const refresh_token = await helperFunction.generateAccessToken(user);
-        console.log(userData1.user_id)
+          if (dateNow < expiryAt1) {
+            if (otp == otp1) {
 
-
-        const userData2 = await knex("user")
-          .where({ user_id: userData1.user_id })
-          .update({
-            access_token: access_token,
-            refresh_token: refresh_token
-          })
-          .returning([
-            "user_id",
-            "name",
-            "email",
-            "role",
-            "access_token",
-            "refresh_token"]
-          )
-        return userData2;
-      } else {
-        throw ("Incorrect Password");
-      }
+              const user = {
+                user_id: user_id4,
+                name: name1,
+                email: email1,
+                role: role1,
+                status: status1
+              }
+              const access_token = await helperFunction.generateRefreshToken(user);
+              const refresh_token = await helperFunction.generateAccessToken(user);
+              const userData2 = await trx("user")
+                .where({ user_id: user_id4 })
+                .update({
+                  access_token: access_token,
+                  refresh_token: refresh_token,
+                  status: 1
+                })
+                .returning([
+                  "user_id",
+                  "name",
+                  "email",
+                  "role",
+                  "access_token",
+                  "refresh_token",
+                  "status"
+                ]
+                )
+              return userData2;
+            } else {
+              throw new Error("Incorrect Otp");
+            }
+          } else {
+            throw new Error("Failed to create user.");
+          }
+        } catch (error) {
+          await trx.rollback();
+          throw error
+        }
+      });
+      return result;
 
     } catch (error) {
-      throw error;
+      throw error
     }
 
   }

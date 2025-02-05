@@ -268,8 +268,6 @@ class UserController {
         return res.status(400).json(validationError);
       }
 
-      
-
       const userExists = await UserModel.userExists(userData.email);
 
       if (!userExists) {
@@ -290,24 +288,18 @@ class UserController {
       });
 
       const result = await UserModel.createAccountOtp(requestVO.data);
+
+    
       const successResponse = new ResponseVO(200, "Success", "Success", result);
       res.status(200).json(successResponse);
+     
 
     } catch (error) {
-      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
+      console.log("ddddd")
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
       res.status(500).json(errorResponse);
     }
   }
-
-
-
-
-
-
-
-
-
-
 
 }
 
