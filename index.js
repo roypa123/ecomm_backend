@@ -11,6 +11,7 @@ const specs = require("./configuration/swaggerConfig");
 app.use(express.json());
 
 const userRoutes = require("./routes/userRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -23,9 +24,11 @@ app.use(function (req, res, next) {
 const authenticateUser = (req, res, next) => {
   next();
 };
+
 app.use("/mobikul/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/mobikul/users", userRoutes);
+app.use("/mobikul/admin", adminRoutes);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
