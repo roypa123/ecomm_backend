@@ -5,9 +5,30 @@ const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 
 class UserModel {
   static async userExists(email) {
-    const existingUser = await knex("user").where({ email }).first();
-    return existingUser;
+    try {
+      const existingUser = await knex("user").where({ email }).first();
+      return existingUser;
+    } catch (error) {
+      throw Error("User checking error occured")
+    }
   }
+
+  static async userStatus(email) {
+ 
+    try {
+
+      const status = await knex("user")
+        .select("status")
+        .where({ email })
+        .first();
+      return status
+    } catch (error) {
+      throw Error("User status checking error occured")
+    }
+
+  }
+
+
 
   static async createUser(userData) {
     const name = userData.name;
@@ -107,23 +128,22 @@ class UserModel {
             "email",
             "role",
             "access_token",
-            "refresh_token"]
+            "refresh_token",
+            "status"]
           )
         return userData2;
       } else {
-        throw ("Incorrect Password");
+        throw Error("Incorrect Password");
       }
 
     } catch (error) {
       throw error;
     }
-
   }
 
   static async createAccountOtp(userData) {
     const email = userData.email;
     const otp = userData.otp;
-
 
     try {
       const result = await knex.transaction(async (trx) => {

@@ -126,8 +126,6 @@ class UserController {
     `,
       };
 
-
-
       await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
           console.log(error);
@@ -150,7 +148,7 @@ class UserController {
       });
 
     } catch (error) {
-      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
       res.status(500).json(errorResponse);
     }
   }
@@ -209,6 +207,20 @@ class UserController {
         return res.status(409).json(conflictError);
       }
 
+      const isStatus = await UserModel.userStatus(userData.email);
+
+      console.log(isStatus.status);
+      if(isStatus.status == 0){
+
+        const result = {
+          "redirectTo":"create_aacount_otp_section",
+          "email":userData.email
+        }
+        const successResponse = new ResponseVO(200, "Success", "Success", result);
+        return res.status(200).json(successResponse);
+
+      }
+      
       const requestVO = new RequestVO({
         data: userData,
         pagination: null,
@@ -221,7 +233,7 @@ class UserController {
       res.status(200).json(successResponse);
 
     } catch (error) {
-      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error);
+      const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
       res.status(500).json(errorResponse);
     }
   }
@@ -289,10 +301,10 @@ class UserController {
 
       const result = await UserModel.createAccountOtp(requestVO.data);
 
-    
+
       const successResponse = new ResponseVO(200, "Success", "Success", result);
       res.status(200).json(successResponse);
-     
+
 
     } catch (error) {
       console.log("ddddd")
