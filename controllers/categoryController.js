@@ -35,6 +35,68 @@ class CategoryController {
         }
     }
 
+    static async createSubcategory(req, res) {
+        const subcategoryData = req.body;
+        console.log(subcategoryData.categories_id)
+        console.log(subcategoryData.sub_category_name)
+        try {
+            if (!subcategoryData.sub_category_name || !subcategoryData.categories_id) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const result = await knex("subcategories")
+                .insert({ name: subcategoryData.sub_category_name, category_id: subcategoryData.categories_id })
+                .returning(['id', 'name', 'category_id']);
+
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+    static async createType(req, res) {
+        const typeData = req.body;
+        console.log(typeData.type_name)
+        console.log(typeData.sub_categories_id)
+        try {
+            if (!typeData.type_name || !typeData.sub_categories_id) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const result = await knex("types")
+                .insert({ name: typeData.type_name, subcategory_id: typeData.sub_categories_id })
+                .returning(['id', 'name', 'subcategory_id']);
+
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+
+
+
+
 }
 
 module.exports = CategoryController;
