@@ -7,7 +7,7 @@ exports.up = function(knex) {
       .createTable('categories', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
         table.string('name').notNullable().unique();
-        table.string('category_image').notNullable().unique();
+        table.string('category_image').notNullable()
         table.timestamp('created_at').defaultTo(knex.fn.now());
       })
       .createTable('subcategories', (table) => {
