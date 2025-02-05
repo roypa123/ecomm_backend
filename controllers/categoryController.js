@@ -1,14 +1,15 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
-const { RequestVO } = require("../vo/requestVo");
+// const { RequestVO } = require("../vo/requestVo");
+const cloudinary = require('../configuration/cloudinaryConfig');
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
-const helperFunction = require("../utils/helper_functions/helperfunctions");
+// const helperFunction = require("../utils/helper_functions/helperfunctions");
 
 class CategoryController {
 
     static async createCategory(req, res) {
         const categoryData = req.body;
-        const category_image = "sdsss"
+      
 
         try {
             if (!categoryData.categories) {
@@ -20,6 +21,18 @@ class CategoryController {
                 );
                 return res.status(400).json(validationError);
             }
+
+            let category_image = null;
+            if (req.file) {
+                const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
+                    folder: "categories", // Folder name in Cloudinary
+                    use_filename: true, 
+                    unique_filename: false,
+                });
+                category_image = uploadedImage.secure_url; // Get Cloudinary URL
+            }
+
+            console.log(category_image)
 
             const result = await knex("categories")
                 .insert({ name: categoryData.categories, category_image: category_image })
