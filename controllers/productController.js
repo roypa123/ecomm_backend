@@ -209,7 +209,7 @@ class ProductController {
     static async addReview(req, res) {
         const reviewData = req.body
         console.log("sasasa");
-    
+
         try {
 
             if (!reviewData.product_id
@@ -280,6 +280,64 @@ class ProductController {
             res.status(500).json(errorResponse);
         }
     }
+
+    static async getProductDetail(req, res) {
+        const productDetailData = req.params
+
+        try {
+
+            if (!productDetailData.productid) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+
+            }
+
+            console.log("sasasa");
+
+            const result = await knex('products')
+                .select(
+                    'products.id',
+                    'products.product_name',
+                    'products.product_description',
+                    'products.real_price',
+                    'products.max_price',
+                    'products.stock',
+                    'products.product_image_url_1',
+                    'products.product_image_url_2',
+                    'products.product_image_url_3',
+                    knex.raw('COALESCE(AVG(reviews.stars), 0) as average_rating'),
+                    knex.raw('COUNT(reviews.id) as total_reviews')
+                )
+                .leftJoin('reviews', 'products.id', 'reviews.product_id')
+                .where('products.id', productDetailData.productid)
+                .groupBy('products.id')
+                .first();
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+
+
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+
+
+
+
+
+
+
+
 
 }
 

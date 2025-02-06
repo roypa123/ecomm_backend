@@ -6,6 +6,7 @@ const router = express.Router();
 router.post("/create_product",upload.array('images',3), productController.createProduct);
 router.get("/products_sub_cat/:subcategory_id", productController.getProductsBySubcategory);
 router.post("/add_review", productController.addReview);
+router.get("/product_detail/:productid", productController.getProductDetail);
 
 
 
