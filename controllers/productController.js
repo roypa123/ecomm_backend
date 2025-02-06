@@ -1,8 +1,14 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
-// const { RequestVO } = require("../vo/requestVo");
+const { RequestVO,
+    PaginationVO,
+    FilterVo,
+    SortVo,
+    OrderVo, } = require("../vo/requestVo");
 const cloudinary = require('../configuration/cloudinaryConfig');
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
+const ProductModel = require("../models/productModel");
+
 // const helperFunction = require("../utils/helper_functions/helperfunctions");
 
 class ProductController {
@@ -119,6 +125,17 @@ class ProductController {
     static async getProductsBySubcategory(req, res) {
         try {
             const { subcategory_id } = req.params;
+            const { pageNo, pageSize } = req.query;
+
+            const paginationVO = new PaginationVO(pageNo || 0, pageSize || 5);
+
+            const requestVO = new RequestVO({
+                data: subcategory_id,
+                pagination: paginationVO,
+                filter: null,
+                sortBy: null,
+                orderBy: null,
+            });
 
             if (!subcategory_id) {
 
@@ -132,27 +149,16 @@ class ProductController {
 
             }
 
-            const products = await knex("products")
-                .where({ subcategories_id: subcategory_id })
-                .select(
-                    "id",
-                    "product_name",
-                    "product_image_url_1",
-                    "real_price",
-                    "max_price",
-                );
+            const result = await ProductModel.getProductsBySubcategory(
+                requestVO.data,
+                requestVO.pagination
+              );
 
-            if (products.length === 0) {
-                const validationError = new ErrorVO(
-                    404,
-                    "BAD REQUEST",
-                    "No products found for this subcategory",
-                    "No products found for this subcategory"
-                );
-                return res.status(404).json(validationError);
-            }
 
-            const successResponse = new ResponseVO(200, "Success", "Success", products);
+           
+
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
             return res.status(200).json(successResponse);
 
         } catch (error) {
@@ -160,11 +166,6 @@ class ProductController {
             res.status(500).json(errorResponse);
         }
     }
-
-
-
-
-
 
 }
 
