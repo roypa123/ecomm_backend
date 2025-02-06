@@ -14,7 +14,7 @@ class UserModel {
   }
 
   static async userStatus(email) {
- 
+
     try {
 
       const status = await knex("user")

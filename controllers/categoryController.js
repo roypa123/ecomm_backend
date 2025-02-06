@@ -9,7 +9,7 @@ class CategoryController {
 
     static async createCategory(req, res) {
         const categoryData = req.body;
-      
+        
 
         try {
             if (!categoryData.categories) {
@@ -22,6 +22,8 @@ class CategoryController {
                 return res.status(400).json(validationError);
             }
 
+            console.log("hi")
+
             const existingUser = await knex("categories").where({ name: categoryData.categories }).first();
             if(existingUser){
                 const validationError = new ErrorVO(
@@ -33,6 +35,8 @@ class CategoryController {
                 return res.status(400).json(validationError);
 
             }
+
+            
 
             let category_image = null;
             if (req.file) {

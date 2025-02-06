@@ -12,6 +12,7 @@ app.use(express.json());
 
 const userRoutes = require("./routes/userRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const productRoutes = require("./routes/productRoutes");
 
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -29,6 +30,7 @@ app.use("/mobikul/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use("/mobikul/users", userRoutes);
 app.use("/mobikul/categories", categoryRoutes);
+app.use("/mobikul/products", productRoutes);
 
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
