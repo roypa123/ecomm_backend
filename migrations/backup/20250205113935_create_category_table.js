@@ -5,21 +5,21 @@
 exports.up = function(knex) {
     return knex.schema
       .createTable('categories', (table) => {
-        table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+        table.bigIncrements('id').primary();
         table.string('name').notNullable().unique();
         table.string('category_image').notNullable()
         table.timestamp('created_at').defaultTo(knex.fn.now());
       })
       .createTable('subcategories', (table) => {
-        table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+        table.bigIncrements('id').primary();
         table.string('name').notNullable();
-        table.uuid('category_id').references('id').inTable('categories').onDelete('CASCADE');
+        table.bigInteger('category_id').notNullable().references('id').inTable('categories').onDelete('CASCADE');
         table.timestamp('created_at').defaultTo(knex.fn.now());
       })
       .createTable('types', (table) => {
-        table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
+        table.bigIncrements('id').primary();
         table.string('name').notNullable();
-        table.uuid('subcategory_id').references('id').inTable('subcategories').onDelete('CASCADE');
+        table.bigInteger('subcategory_id').notNullable().references('id').inTable('subcategories').onDelete('CASCADE');
         table.timestamp('created_at').defaultTo(knex.fn.now());
       });
   };
@@ -34,4 +34,3 @@ exports.down = function(knex) {
       .dropTableIfExists('subcategories')
       .dropTableIfExists('categories');
   };
-
