@@ -126,7 +126,6 @@ class ProductController {
         try {
             const { subcategory_id } = req.params;
             const { pageNo, pageSize } = req.query;
-
             const paginationVO = new PaginationVO(pageNo || 0, pageSize || 5);
 
             const requestVO = new RequestVO({
@@ -153,10 +152,6 @@ class ProductController {
                 requestVO.data,
                 requestVO.pagination
               );
-
-
-           
-
 
             const successResponse = new ResponseVO(200, "Success", "Success", result);
             return res.status(200).json(successResponse);

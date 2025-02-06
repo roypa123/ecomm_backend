@@ -3,8 +3,9 @@ const http = require("http");
 
 const app = express();
 const server = http.createServer(app);
+const config = require('./configuration/config');
 
-const port = process.env.PORT || 4321;
+const port = config.port ;
 const swaggerUi = require("swagger-ui-express");
 const specs = require("./configuration/swaggerConfig");
 
