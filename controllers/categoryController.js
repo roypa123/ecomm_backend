@@ -1,9 +1,8 @@
 const knexConfig = require("../knexfile");
 const knex = require("knex")(knexConfig);
-// const { RequestVO } = require("../vo/requestVo");
 const cloudinary = require('../configuration/cloudinaryConfig');
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
-// const helperFunction = require("../utils/helper_functions/helperfunctions");
+
 
 class CategoryController {
 

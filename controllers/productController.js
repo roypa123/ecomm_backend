@@ -9,7 +9,7 @@ const cloudinary = require('../configuration/cloudinaryConfig');
 const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 const ProductModel = require("../models/productModel");
 
-// const helperFunction = require("../utils/helper_functions/helperfunctions");
+
 
 class ProductController {
 
@@ -26,11 +26,13 @@ class ProductController {
                 || !productData.product_description
                 || !productData.stock
             ) {
-                return res.status(400).json({
-                    status: 400,
-                    message: "BAD REQUEST",
-                    error: "Missing required fields"
-                });
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
             }
 
             const categoryExists = await knex("categories").where({ id: productData.categories_id }).first();
@@ -151,10 +153,127 @@ class ProductController {
             const result = await ProductModel.getProductsBySubcategory(
                 requestVO.data,
                 requestVO.pagination
-              );
+            );
 
             const successResponse = new ResponseVO(200, "Success", "Success", result);
             return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+
+
+    static async getProductsBySubcategory(req, res) {
+        try {
+            const { subcategory_id } = req.params;
+            const { pageNo, pageSize } = req.query;
+            const paginationVO = new PaginationVO(pageNo || 0, pageSize || 5);
+
+            const requestVO = new RequestVO({
+                data: subcategory_id,
+                pagination: paginationVO,
+                filter: null,
+                sortBy: null,
+                orderBy: null,
+            });
+
+            if (!subcategory_id) {
+
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Subcategory ID is required",
+                    "Subcategory ID is required"
+                );
+                return res.status(400).json(validationError);
+
+            }
+
+            const result = await ProductModel.getProductsBySubcategory(
+                requestVO.data,
+                requestVO.pagination
+            );
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
+    static async addReview(req, res) {
+        const reviewData = req.body
+        console.log("sasasa");
+    
+        try {
+
+            if (!reviewData.product_id
+                || !reviewData.user_id
+                || !reviewData.stars
+                || !reviewData.review_text
+            ) {
+
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Missing required fields",
+                    "Missing required fields"
+                );
+                return res.status(400).json(validationError);
+
+            }
+
+            const productExists = await knex('products').where('id', reviewData.product_id).first();
+            if (!productExists) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Product not found.",
+                    "Product not found"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const userExists = await knex('user').where('user_id', reviewData.user_id).first();
+            if (!userExists) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "User not found",
+                    "User not found"
+                );
+                return res.status(400).json(validationError);
+            }
+
+
+            if (reviewData.stars < 1 || reviewData.stars > 5) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Stars must be between 1 and 5",
+                    "Stars must be between 1 and 5"
+                );
+                return res.status(400).json(validationError);
+            }
+
+            const result = await knex('reviews').insert({
+                id: Date.now(),
+                product_id: reviewData.product_id,
+                user_id: reviewData.user_id,
+                stars: reviewData.stars,
+                review_text: reviewData.review_text,
+            }).returning('*');
+
+            const successResponse = new ResponseVO(200, "Success", "Success", result);
+            return res.status(200).json(successResponse);
+
+
+
 
         } catch (error) {
             const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
