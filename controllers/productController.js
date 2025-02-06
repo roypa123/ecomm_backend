@@ -116,6 +116,51 @@ class ProductController {
         }
     }
 
+    static async getProductsBySubcategory(req, res) {
+        try {
+            const { subcategory_id } = req.params;
+
+            if (!subcategory_id) {
+
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Subcategory ID is required",
+                    "Subcategory ID is required"
+                );
+                return res.status(400).json(validationError);
+
+            }
+
+            const products = await knex("products")
+                .where({ subcategories_id: subcategory_id })
+                .select(
+                    "id",
+                    "product_name",
+                    "product_image_url_1",
+                    "real_price",
+                    "max_price",
+                );
+
+            if (products.length === 0) {
+                const validationError = new ErrorVO(
+                    404,
+                    "BAD REQUEST",
+                    "No products found for this subcategory",
+                    "No products found for this subcategory"
+                );
+                return res.status(404).json(validationError);
+            }
+
+            const successResponse = new ResponseVO(200, "Success", "Success", products);
+            return res.status(200).json(successResponse);
+
+        } catch (error) {
+            const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
+            res.status(500).json(errorResponse);
+        }
+    }
+
 
 
 
