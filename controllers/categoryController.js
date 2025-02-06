@@ -22,6 +22,18 @@ class CategoryController {
                 return res.status(400).json(validationError);
             }
 
+            const existingUser = await knex("categories").where({ name: categoryData.categories }).first();
+            if(existingUser){
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Category already exists",
+                    "Category already exists"
+                );
+                return res.status(400).json(validationError);
+
+            }
+
             let category_image = null;
             if (req.file) {
                 const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
@@ -31,8 +43,8 @@ class CategoryController {
                 });
                 category_image = uploadedImage.secure_url; // Get Cloudinary URL
             }
+            console.log(category_image);
 
-            console.log(category_image)
 
             const result = await knex("categories")
                 .insert({ name: categoryData.categories, category_image: category_image })
