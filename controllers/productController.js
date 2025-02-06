@@ -8,52 +8,104 @@ const { ResponseVO, PaginationResVO, ErrorVO } = require("../vo/responseVo");
 class ProductController {
 
     static async createProduct(req, res) {
-        const categoryData = req.body;
-
+        const productData = req.body;
 
         try {
-            if (!categoryData.categories) {
+            if (!productData.product_name
+                || !productData.categories_id
+                || !productData.subcategories_id
+                || !productData.types_id
+                || !productData.real_price
+                || !productData.max_price
+                || !productData.product_description
+                || !productData.stock
+            ) {
+                return res.status(400).json({
+                    status: 400,
+                    message: "BAD REQUEST",
+                    error: "Missing required fields"
+                });
+            }
+
+            const categoryExists = await knex("categories").where({ id: productData.categories_id }).first();
+            const subcategoryExists = await knex("subcategories").where({ id: productData.subcategories_id }).first();
+            const typeExists = await knex("types").where({ id: productData.types_id }).first();
+
+
+
+            if (!categoryExists || !subcategoryExists || !typeExists) {
                 const validationError = new ErrorVO(
                     400,
                     "BAD REQUEST",
-                    "Missing required fields",
-                    "Missing required fields"
+                    "Invalid category, subcategory, or type ID",
+                    "Invalid category, subcategory, or type ID"
                 );
                 return res.status(400).json(validationError);
             }
+
+            const productExists = await knex("products").where({ product_name: productData.product_name }).first();
+            if (productExists) {
+                const validationError = new ErrorVO(
+                    400,
+                    "BAD REQUEST",
+                    "Product already exist",
+                    "Product already exist"
+                );
+                return res.status(400).json(validationError);
+            }
+
+
+            let uploadedImages = [null, null, null];
+            if (req.files && req.files.length > 0) {
+                const cloudinaryUploads = await Promise.all(
+                    req.files.map(async (file) => {
+                        const uploadResult = await cloudinary.uploader.upload(file.path, {
+                            folder: "products",
+                            use_filename: true,
+                            unique_filename: false,
+                        });
+                        return uploadResult.secure_url;
+                    })
+                );
+                uploadedImages = [...cloudinaryUploads, ...uploadedImages].slice(0, 3);
+            }
+
+            console.log("Uploaded Images:", uploadedImages);
+            const product_image_url_1 = uploadedImages[0];
+            const product_image_url_2 = uploadedImages[1];
+            const product_image_url_3 = uploadedImages[1];
 
             console.log("hi")
 
-            const existingUser = await knex("categories").where({ name: categoryData.categories }).first();
-            if (existingUser) {
-                const validationError = new ErrorVO(
-                    400,
-                    "BAD REQUEST",
-                    "Category already exists",
-                    "Category already exists"
-                );
-                return res.status(400).json(validationError);
 
-            }
-
-
-
-            let category_image = null;
-            if (req.file) {
-                const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
-                    folder: "categories", // Folder name in Cloudinary
-                    use_filename: true,
-                    unique_filename: false,
-                });
-                category_image = uploadedImage.secure_url; // Get Cloudinary URL
-            }
-            console.log(category_image);
-
-
-            const result = await knex("categories")
-                .insert({ name: categoryData.categories, category_image: category_image })
-                .returning(['id', 'name', 'category_image']);
-
+            const result = await knex("products")
+                .insert({
+                    categories_id: productData.categories_id,
+                    subcategories_id: productData.subcategories_id,
+                    types_id: productData.types_id,
+                    product_name: productData.product_name,
+                    product_description: productData.product_description,
+                    product_image_url_1: product_image_url_1,
+                    product_image_url_2: product_image_url_2,
+                    product_image_url_3: product_image_url_3,
+                    real_price: productData.real_price,
+                    max_price: productData.max_price,
+                    stock: productData.stock
+                })
+                .returning([
+                    'id',
+                    'categories_id',
+                    'subcategories_id',
+                    'types_id',
+                    'product_name',
+                    'product_description',
+                    'product_image_url_1',
+                    'product_image_url_2',
+                    'product_image_url_3',
+                    'real_price',
+                    'max_price',
+                    'stock'
+                ]);
 
             const successResponse = new ResponseVO(200, "Success", "Success", result);
             return res.status(200).json(successResponse);
