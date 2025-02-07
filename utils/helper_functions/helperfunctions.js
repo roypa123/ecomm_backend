@@ -6,9 +6,24 @@ const constants = require('../constants')
 
 class HelperFunction {
 
+ 
+  
+  
   static async generateOTP() {
     return Math.floor(1000 + Math.random() * 9000).toString();
   };
+
+  static async isAdmin() {
+    return (req, res, next) => {
+      console.log("manu");
+      // if (!req.user || !allowedRoles.includes(req.user.role)) {
+      //   return res.status(403).json({ message: "Forbidden: You do not have permission." });
+      // }
+      next();
+    };
+  };
+
+
 
 
   static async isValidOTP(otp) {
@@ -32,7 +47,7 @@ class HelperFunction {
   static async generateRefreshToken(user) {
     try {
       const token = jwt.sign(user, constants.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
-      //console.log(token);
+      
       return token;  
     } catch (error) {
       console.error("Error generating access token:", error);
@@ -88,8 +103,6 @@ class HelperFunction {
   static async isValidEmail(email) {
     // Regular expression for email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    //console.log(emailRegex.test(email));
     return emailRegex.test(email);
   }
 

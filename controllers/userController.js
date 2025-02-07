@@ -70,7 +70,7 @@ class UserController {
 
       const result = await UserModel.createUser(requestVO.data);
 
-      console.log(result.email1);
+  
 
       const mailOptions = {
         from: "roypa81130@gmail.com",
@@ -128,7 +128,7 @@ class UserController {
 
       await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.log(error);
+       
           const errorResponse = new ErrorVO(
             500,
             "BAD REQUEST",
@@ -209,7 +209,7 @@ class UserController {
 
       const isStatus = await UserModel.userStatus(userData.email);
 
-      console.log(isStatus.status);
+    
       if(isStatus.status == 0){
 
         const result = {
@@ -307,7 +307,7 @@ class UserController {
 
 
     } catch (error) {
-      console.log("ddddd")
+   
       const errorResponse = new ErrorVO(500, "Internal Server Error", "Internal Server Error", error.message);
       res.status(500).json(errorResponse);
     }

@@ -78,12 +78,12 @@ class ProductController {
                 uploadedImages = [...cloudinaryUploads, ...uploadedImages].slice(0, 3);
             }
 
-            console.log("Uploaded Images:", uploadedImages);
+       
             const product_image_url_1 = uploadedImages[0];
             const product_image_url_2 = uploadedImages[1];
             const product_image_url_3 = uploadedImages[1];
 
-            console.log("hi")
+           
 
 
             const result = await knex("products")
@@ -208,7 +208,7 @@ class ProductController {
 
     static async addReview(req, res) {
         const reviewData = req.body
-        console.log("sasasa");
+       
 
         try {
 
@@ -297,7 +297,7 @@ class ProductController {
 
             }
 
-            console.log("sasasa");
+    
 
             const result = await knex('products')
                 .select(

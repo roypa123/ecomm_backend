@@ -40,15 +40,11 @@ const authenticateUser = (req, res, next) => {
 
   }
 
-  console.log("manu");
-
   try {
-    const decoded = jwt.verify(token,constants.ACCESS_TOKEN_SECRET);
-    console.log(decoded)
-    req.user = decoded; // Attach user details to request
+    const decoded = jwt.verify(token, constants.ACCESS_TOKEN_SECRET);
+    req.user = decoded;
     next();
   } catch (err) {
-    console.log(err)
     const validationError = new ErrorVO(
       400,
       "Failure",

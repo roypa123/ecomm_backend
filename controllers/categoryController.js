@@ -21,7 +21,7 @@ class CategoryController {
                 return res.status(400).json(validationError);
             }
 
-            console.log("hi")
+            
 
             const existingUser = await knex("categories").where({ name: categoryData.categories }).first();
             if(existingUser){
@@ -46,7 +46,7 @@ class CategoryController {
                 });
                 category_image = uploadedImage.secure_url; // Get Cloudinary URL
             }
-            console.log(category_image);
+          
 
 
             const result = await knex("categories")
@@ -65,8 +65,7 @@ class CategoryController {
 
     static async createSubcategory(req, res) {
         const subcategoryData = req.body;
-        console.log(subcategoryData.categories_id)
-        console.log(subcategoryData.sub_category_name)
+      
         try {
             if (!subcategoryData.sub_category_name || !subcategoryData.categories_id) {
                 const validationError = new ErrorVO(
@@ -94,8 +93,7 @@ class CategoryController {
 
     static async createType(req, res) {
         const typeData = req.body;
-        console.log(typeData.type_name)
-        console.log(typeData.sub_categories_id)
+     
         try {
             if (!typeData.type_name || !typeData.sub_categories_id) {
                 const validationError = new ErrorVO(
@@ -168,7 +166,7 @@ class CategoryController {
     static async getTypes(req, res) {
         const { subcategoryId } = req.query;
       
-        console.log(subcategoryId)
+      
         try {
             if (!subcategoryId) {
                 const validationError = new ErrorVO(
