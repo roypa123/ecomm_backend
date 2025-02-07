@@ -8,8 +8,6 @@ class CategoryController {
 
     static async createCategory(req, res) {
         const categoryData = req.body;
-        
-
         try {
             if (!categoryData.categories) {
                 const validationError = new ErrorVO(
@@ -20,8 +18,6 @@ class CategoryController {
                 );
                 return res.status(400).json(validationError);
             }
-
-            
 
             const existingUser = await knex("categories").where({ name: categoryData.categories }).first();
             if(existingUser){
@@ -35,8 +31,6 @@ class CategoryController {
 
             }
 
-            
-
             let category_image = null;
             if (req.file) {
                 const uploadedImage = await cloudinary.uploader.upload(req.file.path, {
@@ -47,8 +41,6 @@ class CategoryController {
                 category_image = uploadedImage.secure_url; // Get Cloudinary URL
             }
           
-
-
             const result = await knex("categories")
                 .insert({ name: categoryData.categories, category_image: category_image })
                 .returning(['id', 'name', 'category_image']);
@@ -133,7 +125,6 @@ class CategoryController {
         }
     }
 
-
     static async getSubcategories(req, res) {
         const { categoryId } = req.query;
 
@@ -162,11 +153,8 @@ class CategoryController {
         }
     }
 
-
     static async getTypes(req, res) {
-        const { subcategoryId } = req.query;
-      
-      
+        const { subcategoryId } = req.query; 
         try {
             if (!subcategoryId) {
                 const validationError = new ErrorVO(
@@ -190,9 +178,6 @@ class CategoryController {
             res.status(500).json(errorResponse);
         }
     }
-
-
-
 
 
 }

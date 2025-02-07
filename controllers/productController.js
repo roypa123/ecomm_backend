@@ -297,8 +297,6 @@ class ProductController {
 
             }
 
-    
-
             const result = await knex('products')
                 .select(
                     'products.id',
