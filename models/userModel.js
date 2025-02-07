@@ -114,7 +114,7 @@ class UserModel {
         const access_token = await helperFunction.generateAccessToken(user);
         const refresh_token = await helperFunction.generateRefreshToken(user);
 
-        console.log(userData1.user_id)
+        console.log(access_token)
 
 
         const userData2 = await knex("user")

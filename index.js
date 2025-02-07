@@ -11,7 +11,8 @@ const specs = require("./configuration/swaggerConfig");
 
 app.use(express.json());
 const { ErrorVO } = require("./vo/responseVo");
-const constants = require('./utils/constants')
+const constants = require('./utils/constants');
+const jwt = require('jsonwebtoken');
 
 const userRoutes = require("./routes/userRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -40,14 +41,14 @@ const authenticateUser = (req, res, next) => {
   }
 
   console.log("manu");
-  // console.log(token);
-  console.log(constants.ACCESS_TOKEN_SECRET)
 
   try {
-    const decoded = jwt.verify(token, constants.ACCESS_TOKEN_SECRET);
+    const decoded = jwt.verify(token,constants.ACCESS_TOKEN_SECRET);
+    console.log(decoded)
     req.user = decoded; // Attach user details to request
     next();
   } catch (err) {
+    console.log(err)
     const validationError = new ErrorVO(
       400,
       "Failure",
@@ -59,7 +60,6 @@ const authenticateUser = (req, res, next) => {
 };
 
 app.use("/mobikul/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
-
 app.use("/mobikul/users", userRoutes);
 app.use("/mobikul/categories", authenticateUser, categoryRoutes);
 app.use("/mobikul/products", authenticateUser, productRoutes);
