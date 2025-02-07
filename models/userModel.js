@@ -111,8 +111,9 @@ class UserModel {
 
 
       if (comparePassword) {
-        const access_token = await helperFunction.generateRefreshToken(user);
-        const refresh_token = await helperFunction.generateAccessToken(user);
+        const access_token = await helperFunction.generateAccessToken(user);
+        const refresh_token = await helperFunction.generateRefreshToken(user);
+
         console.log(userData1.user_id)
 
 
@@ -171,8 +172,9 @@ class UserModel {
                 role: role1,
                 status: status1
               }
-              const access_token = await helperFunction.generateRefreshToken(user);
-              const refresh_token = await helperFunction.generateAccessToken(user);
+              const access_token = await helperFunction.generateAccessToken(user);
+              const refresh_token = await helperFunction.generateRefreshToken(user);
+
               const userData2 = await trx("user")
                 .where({ user_id: user_id4 })
                 .update({
