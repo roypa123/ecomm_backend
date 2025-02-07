@@ -6,25 +6,19 @@ const constants = require('../constants')
 
 class HelperFunction {
 
- 
-  
-  
   static async generateOTP() {
     return Math.floor(1000 + Math.random() * 9000).toString();
   };
 
-  static async isAdmin() {
-    return (req, res, next) => {
+  static isAdmin = (req, res, next) => {
+      console.log(req.user);
       console.log("manu");
-      // if (!req.user || !allowedRoles.includes(req.user.role)) {
-      //   return res.status(403).json({ message: "Forbidden: You do not have permission." });
-      // }
+      if (!req.user || req.user.role !== "admin") {
+        return res.status(403).json({ message: "Forbidden: You do not have permission." });
+      }
       next();
     };
-  };
-
-
-
+  
 
   static async isValidOTP(otp) {
     // Regular expression for exactly 4 digits (0-9)

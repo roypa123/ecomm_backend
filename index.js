@@ -42,9 +42,11 @@ const authenticateUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, constants.ACCESS_TOKEN_SECRET);
+    // console.log(decoded)
     req.user = decoded;
     next();
   } catch (err) {
+    console.error(err)
     const validationError = new ErrorVO(
       400,
       "Failure",
